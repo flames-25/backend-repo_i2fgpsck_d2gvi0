@@ -11,7 +11,7 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
 # Example schemas (replace with your own):
@@ -38,8 +38,30 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Moonshot funding app schemas
+
+class Project(BaseModel):
+    """
+    Moonshot projects seeking funding
+    Collection name: "project"
+    """
+    title: str = Field(..., min_length=3, max_length=120)
+    founder_name: str = Field(..., min_length=2, max_length=80)
+    founder_email: EmailStr = Field(..., description="Founder contact email")
+    description: str = Field(..., min_length=20, max_length=2000)
+    category: str = Field("AI", description="Category like AI, Climate, Bio, etc.")
+    goal_amount: float = Field(0, ge=0, description="Target amount in USD")
+    featured: bool = Field(False, description="Whether to highlight this project")
+
+class Donation(BaseModel):
+    """
+    Donations made towards projects
+    Collection name: "donation"
+    """
+    project_id: str = Field(..., description="ID of the project being funded")
+    donor_name: str = Field(..., min_length=2, max_length=80)
+    amount: float = Field(..., gt=0, description="Donation amount in USD")
+    message: Optional[str] = Field(None, max_length=500)
 
 # Note: The Flames database viewer will automatically:
 # 1. Read these schemas from GET /schema endpoint
